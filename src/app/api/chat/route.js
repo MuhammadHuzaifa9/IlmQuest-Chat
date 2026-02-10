@@ -3,13 +3,33 @@ import { NextResponse } from "next/server";
 const HF_API_KEY = process.env.HUGGINGFACE_API_KEY;
 const HF_MODEL = "deepseek-ai/DeepSeek-V3-0324:fastest"; // Supported by inference providers
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+if (req.method === "OPTIONS") {
+  return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
 export async function POST(req) {
   try {
     const { question, history = [] } = await req.json();
 
     if (!question) {
-      return NextResponse.json({ error: "Question is required" }, { status: 400 });
-    }
+  return NextResponse.json(
+    { error: "Question is required" },
+    { status: 400, headers: corsHeaders }
+  );
+}
+
 
     // System prompt to set persona and instruct follow-ups
     const systemPrompt = `
@@ -139,13 +159,16 @@ return NextResponse.json({
     { role: "user", content: question },
     { role: "assistant", content: answerText },
   ],
-});
+},
+  { headers: corsHeaders }
+);
 
 } catch (error) {
 console.error("Chat API error:", error);
 return NextResponse.json(
 { error: "Failed to get response from AI" },
-{ status: 500 }
+{ status: 500, headers: corsHeaders }
 );
 }
+
 }
