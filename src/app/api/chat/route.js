@@ -145,6 +145,25 @@ if (rawMessage.includes(DELIM)) {
     }
   }
 }
+    // FINAL fallback: detect inline JSON object containing suggested_followups
+if (!suggestedFollowups.length) {
+  const inlineMatch = rawMessage.match(/\{[\s\S]*"suggested_followups"[\s\S]*?\}/);
+  if (inlineMatch) {
+    try {
+      const parsed = JSON.parse(inlineMatch[0]);
+      if (Array.isArray(parsed.suggested_followups)) {
+        suggestedFollowups = parsed.suggested_followups.filter(
+          (s) => typeof s === "string"
+        );
+        // Remove inline JSON from visible answer
+        answerText = rawMessage.replace(inlineMatch[0], "").trim();
+      }
+    } catch {
+      // ignore
+    }
+  }
+}
+
 
 return NextResponse.json({
   text: answerText,
@@ -170,4 +189,5 @@ return NextResponse.json(
 }
 
 }
+
 
