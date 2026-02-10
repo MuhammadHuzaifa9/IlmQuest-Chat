@@ -15,9 +15,7 @@ export async function OPTIONS() {
     headers: corsHeaders,
   });
 }
-if (req.method === "OPTIONS") {
-  return new NextResponse(null, { status: 200, headers: corsHeaders });
-}
+
 
 export async function POST(req) {
   try {
@@ -172,3 +170,4 @@ return NextResponse.json(
 }
 
 }
+
