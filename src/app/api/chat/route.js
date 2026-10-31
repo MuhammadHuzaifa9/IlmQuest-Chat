@@ -53,8 +53,13 @@ You are an expert Islamic Q&A Assistant named Ilmquest.
 Answer questions based on the Quran, Hadith, and Islamic scholarship.
 Be concise, accurate, and respectful.
 
-At the end of your answer, provide 3 short suggested follow-up questions that a user might ask next.
-Format them as a JSON array under "suggested_followups".
+At the end of your answer, provide exactly 3 short suggested follow-up questions.
+
+Separate your answer and follow-up questions using this exact delimiter:
+===SUGGESTED_FOLLOWUPS===
+
+After the delimiter, output ONLY a valid JSON array of 3 strings.
+Do not include the key "suggested_followups", markdown code fences, or additional text.
 `;
 
     // Build conversation history
@@ -265,7 +270,33 @@ Format them as a JSON array under "suggested_followups".
           // Ignore parsing errors
         }
       }
+      
     }
+    // Additional fallback: standalone suggested_followups array
+if (!suggestedFollowups.length) {
+  const propertyMatch = rawMessage.match(
+    /"suggested_followups"\s*:\s*(\[[\s\S]*?\])/
+  );
+
+  if (propertyMatch) {
+    try {
+      const parsed = JSON.parse(propertyMatch[1]);
+
+      if (Array.isArray(parsed)) {
+        suggestedFollowups = parsed.filter(
+          (s) => typeof s === "string"
+        );
+
+        answerText = answerText
+          .replace(propertyMatch[0], "")
+          .replace(/,\s*$/, "")
+          .trim();
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+  }
+}
 
     // Return the original response structure
     return NextResponse.json(
