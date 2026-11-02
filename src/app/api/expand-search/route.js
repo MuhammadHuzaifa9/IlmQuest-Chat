@@ -79,7 +79,7 @@ Return ONLY valid JSON:
     for (const model of GEMINI_MODELS) {
       try {
         const response = await fetch(
-          \`https://generativelanguage.googleapis.com/v1beta/models/\${model}:generateContent\`,
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
           {
             method: "POST",
             headers: {
